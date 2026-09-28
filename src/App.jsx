@@ -54,45 +54,54 @@ const playSound = (type) => {
   }
 };
 
-// --- SPRITES ---
-const CELL = 3; 
+// --- SPRITES (Volcano / Lava World theme) ---
+const CELL = 3;
+
+// Magma Fire-Bat (acrobat replacement)
 const ACROBAT_SWING = [
-  ".....RR.....",
-  "....RRRR....",
-  "...RWWWRR...",
-  "...RRRRRR...",
-  "....RBRB....",
-  "...RRBBBRR..",
-  "..R.BBBBB.R.",
-  "..R..BBB..R.",
-  ".....R.R....",
-  "....RR.RR...",
-  "...RR...RR.."
+  "....DDDD....",
+  "...DOOODD...",
+  "..DOYYYYOD..",
+  ".DO.YYYY.OD.",
+  "DD..RRRR..DD",
+  "D...ROOR...D",
+  "....ROOR....",
+  "....DDDD....",
+  "...D....D...",
+  "..D......D..",
+  ".DD......DD."
 ];
+
+// Lava Golem mascot
 const VIGILANTE_STAND = [
-  "......FFFF......",
-  ".....FFFFFF.....",
-  ".....FKKKKF.....",
-  ".....FFFFFF.....",
-  "...KKKKKKKKKK...",
-  "..KKKWWKKWWKKK..",
-  "..KKKKWWWWKKKK..",
-  "...KKKKWWKKKK...",
-  "....KKK..KKK....",
-  "....KK....KK...."
+  "....RRRRRR....",
+  "...ROOOOOOOR..",
+  "...ROYYYOOR...",
+  "...ROOOOOR....",
+  "..RRRRRRRRRR..",
+  ".RROYYRRYYORR.",
+  ".RRROYYYOORR..",
+  "..RRROYYRRRR..",
+  "...RRR..RRR...",
+  "...RR....RR..."
 ];
+
+// Lava Fireball (drone replacement)
 const DRONE_SPRITE = [
-  "..K......K..",
-  ".K.KKKKKK.K.",
-  "K..KRRRRK..K",
-  "KKKKRWWKKKKK",
-  "...KKKKKK..."
+  "..OOO.OOO..",
+  ".OYYYYYYYYO.",
+  "OYYRRRRRRYYO",
+  ".OYYYYYYYYO.",
+  "..OOO.OOO.."
 ];
 
 const PALETTES = {
-  acrobat: { R: '#e23636', B: '#1a1a1a', W: '#ffffff' },
-  vigilante: { F: '#ffcda8', K: '#111111', W: '#ffffff' },
-  drone: { K: '#222222', R: '#ff3333', W: '#ffff00' }
+  // Fire-Bat: D=dark-crimson body, O=orange wing, Y=yellow core, R=red accent
+  acrobat: { D: '#c0392b', O: '#e67e22', Y: '#ffd32a', R: '#ff3838' },
+  // Lava Golem: R=red rock, O=orange glow, Y=yellow core
+  vigilante: { R: '#c0392b', O: '#e67e22', Y: '#ffd32a' },
+  // Lava Fireball: O=orange shell, Y=yellow core, R=red hot centre
+  drone: { O: '#e67e22', Y: '#ffd32a', R: '#ff3838' }
 };
 
 const drawGrid = (ctx, x, y, grid, palette, flip=false, scale=1) => {
@@ -114,33 +123,33 @@ const drawGrid = (ctx, x, y, grid, palette, flip=false, scale=1) => {
 };
 
 const MISS_TAUNTS = [
-  "CANT YOU DO IT MAN?",
-  "A 3 YEAR OLD COULD HAVE PLAYED BETTER!",
-  "STORMTRUPER AIM!",
-  "WAS THAT A WARNING SHOT?",
-  "IS YOUR MOUSE BROKEN?",
-  "OPEN YOUR EYES, MAN!",
-  "EVEN I COULD HIT THAT!",
-  "MY GRANDMA AIMS BETTER!",
-  "ARE YOU PLAYING WITH YOUR FEET?",
-  "WAKE UP, HERO!",
-  "I'VE SEEN BETTER AIM FROM A POTATO.",
-  "YOU'RE SHOOTING BLANKS!",
-  "PACIFIST RUN?",
-  "YOU CALL THAT AN ATTACK?"
+  "THE LAVA BATS ARE LAUGHING AT YOU!",
+  "YOU MISSED A GIANT FIREBALL. REALLY?",
+  "THE VOLCANO IS NOT IMPRESSED.",
+  "WAS THAT AIMED AT THE MAGMA RIVER?",
+  "IS YOUR CURSOR ON FIRE? CAUSE YOUR AIM ISN'T!",
+  "OPEN YOUR EYES, THE LAVA IS RIGHT THERE!",
+  "EVEN THE GOLEM COULD HIT THAT!",
+  "MY MOLTEN GRANDMA AIMS BETTER!",
+  "ARE YOU SHOOTING WITH OVEN MITTS ON?",
+  "WAKE UP, THE VOLCANO IS ERUPTING!",
+  "I'VE SEEN BETTER AIM FROM A LAVA ROCK.",
+  "YOU'RE SHOOTING ASHES!",
+  "PACIFIST RUN IN A VOLCANO ZONE?",
+  "YOU CALL THAT A SHOT? THE MAGMA IS ASHAMED!"
 ];
 
 const GAME_OVER_TAUNTS = [
-  "OH COOL YOU HAVE FINALLY ENDED YOUR BROS LOVE STORY.",
-  "WITH GREAT POWER COMES TERRIBLE AIM.",
-  "THE REAL PUNISHMENT IS YOUR SCORE.",
-  "SPIDEY: 1, YOU: 0.",
-  "DONT QUIT YOUR DAY JOB.",
-  "THE CITY IS DOOMED THANKS TO YOU.",
-  "BACK TO TRAINING WHEELS FOR YOU.",
-  "MAYBE TRY MINESWEEPER INSTEAD?",
-  "EVEN J. JONAH JAMESON IS DISAPPOINTED.",
-  "YOU LET THEM GET AWAY! THE RENT IS STILL DUE!"
+  "THE LAVA BATS HAVE CLAIMED THE VOLCANO. NICE WORK.",
+  "WITH GREAT HEAT COMES TERRIBLE AIM.",
+  "THE REAL PUNISHMENT IS WATCHING THE MAGMA RISE.",
+  "LAVA BATS: 1, YOU: 0.",
+  "DON'T QUIT YOUR DAY JOB. VOLCANOES NEED BETTER DEFENDERS.",
+  "THE VOLCANO IS DOOMED THANKS TO YOU.",
+  "BACK TO THE COOLING CHAMBERS FOR YOU.",
+  "MAYBE TRY PUTTING OUT CAMPFIRES INSTEAD?",
+  "EVEN THE LAVA GOLEM IS DISAPPOINTED.",
+  "YOU LET THEM ESCAPE! NOW THE WHOLE ISLAND IS ON FIRE!"
 ];
 
 // --- GAME LOGIC ENGINE ---
@@ -257,6 +266,7 @@ class GameEngine {
       speedGlitched: false,
       freezeTimer: 0,
       freezeCount: 0,
+      hasDodged: false,
       // More forgiving screen time on easy
       maxTime: this.mode === 1 ? 5.0 : Math.max(1.5, 4.0 - (this.round * 0.2)) 
     };
@@ -278,6 +288,7 @@ class GameEngine {
       speedGlitched: false,
       freezeTimer: 0,
       freezeCount: 0,
+      hasDodged: false,
       maxTime: Math.max(1.5, 3.5 - (this.round * 0.15))
     };
   }
@@ -438,11 +449,29 @@ class GameEngine {
           t.escaped = true;
           this.checkWaveEnd();
         } else if (t.type === 'acrobat') {
+          // D08 — evasive dodge: sudden vertical plunge/rise + horizontal turn
+          if (!t.hasDodged && t.escapeTimer > 1.2 && Math.random() < 0.03) {
+            t.vy = (Math.random() > 0.5 ? -1 : 1) * 120;
+            t.vx *= -0.8;
+            t.hasDodged = true;
+          }
           // Continuous sine-wave swinging motion (Bug #2 & #3 fixed: no multipliers, no freeze)
           t.x += t.vx * dt;
           t.phase += t.phaseSpeed * dt;
           t.y = t.baseY + Math.sin(t.phase) * t.amplitude;
+          // Apply residual dodge vertical nudge (decays quickly)
+          if (t.vy) {
+            t.baseY += t.vy * dt;
+            t.vy *= Math.max(0, 1 - 4 * dt); // dampen over ~0.25 s
+            if (Math.abs(t.vy) < 1) t.vy = 0;
+          }
         } else if (t.type === 'drone') {
+          // D08 — evasive dodge: sudden vertical plunge/rise + horizontal turn
+          if (!t.hasDodged && t.escapeTimer > 1.2 && Math.random() < 0.03) {
+            t.vy = (Math.random() > 0.5 ? -1 : 1) * 120;
+            t.vx *= -0.8;
+            t.hasDodged = true;
+          }
           // Constant velocity, no freeze (Bug #2 & #3 fixed)
           t.x += t.vx * dt;
           t.y += t.vy * dt;
@@ -501,45 +530,160 @@ class GameEngine {
 
   draw() {
     const ctx = this.ctx;
-    
-    // Background
-    const gradient = ctx.createLinearGradient(0, 0, 0, this.H);
-    gradient.addColorStop(0, '#0a0514');
-    gradient.addColorStop(1, '#1e103c');
-    ctx.fillStyle = gradient;
+    const now = performance.now() / 1000; // seconds, for animation
+
+    // --- SKY: dark crimson/orange smoky gradient ---
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, this.H);
+    skyGrad.addColorStop(0,   '#1a0000');
+    skyGrad.addColorStop(0.4, '#3d0a00');
+    skyGrad.addColorStop(0.75,'#7a1e00');
+    skyGrad.addColorStop(1,   '#b03000');
+    ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, this.W, this.H);
 
-    // Moon & Stars
-    ctx.fillStyle = '#f39c12';
-    ctx.beginPath(); ctx.arc(this.W - 100, 80, 35, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#0a0514';
-    ctx.beginPath(); ctx.arc(this.W - 85, 65, 30, 0, Math.PI*2); ctx.fill(); 
-    
-    ctx.fillStyle = '#fff';
-    for(let i=0; i<40; i++) {
-      const sx = (Math.sin(i*743)*0.5+0.5) * this.W;
-      const sy = (Math.cos(i*312)*0.5+0.5) * (this.H * 0.6);
-      if (Math.random() > 0.95) ctx.fillRect(sx, sy, 3, 3); 
+    // --- VOLCANIC ASH / EMBER PARTICLES (deterministic flicker) ---
+    for (let i = 0; i < 60; i++) {
+      const ex = ((Math.sin(i * 491 + now * (0.3 + i * 0.01)) * 0.5 + 0.5)) * this.W;
+      const ey = ((Math.cos(i * 317 + now * (0.2 + i * 0.008)) * 0.5 + 0.5)) * this.H * 0.7;
+      const er = 1 + Math.abs(Math.sin(i * 77 + now * 2)) * 2;
+      const alpha = 0.4 + Math.abs(Math.sin(i * 53 + now * 3)) * 0.6;
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = i % 3 === 0 ? '#ffd32a' : i % 3 === 1 ? '#e67e22' : '#ff3838';
+      ctx.beginPath();
+      ctx.arc(ex, ey, er, 0, Math.PI * 2);
+      ctx.fill();
     }
+    ctx.globalAlpha = 1.0;
 
-    // Targets
+    // --- DISTANT DARK MOUNTAINS ---
+    ctx.fillStyle = '#1f0500';
+    // Far mountains (lighter silhouette)
+    ctx.beginPath();
+    ctx.moveTo(0, this.H * 0.72);
+    ctx.lineTo(60,  this.H * 0.45);
+    ctx.lineTo(130, this.H * 0.60);
+    ctx.lineTo(210, this.H * 0.38);
+    ctx.lineTo(310, this.H * 0.55);
+    ctx.lineTo(430, this.H * 0.42);
+    ctx.lineTo(530, this.H * 0.58);
+    ctx.lineTo(640, this.H * 0.40);
+    ctx.lineTo(730, this.H * 0.54);
+    ctx.lineTo(this.W, this.H * 0.46);
+    ctx.lineTo(this.W, this.H);
+    ctx.lineTo(0, this.H);
+    ctx.closePath();
+    ctx.fill();
+
+    // Near mountains (darker)
+    ctx.fillStyle = '#120200';
+    ctx.beginPath();
+    ctx.moveTo(0, this.H * 0.82);
+    ctx.lineTo(80,  this.H * 0.62);
+    ctx.lineTo(160, this.H * 0.72);
+    ctx.lineTo(260, this.H * 0.52);
+    ctx.lineTo(380, this.H * 0.68);
+    ctx.lineTo(500, this.H * 0.50);
+    ctx.lineTo(600, this.H * 0.65);
+    ctx.lineTo(700, this.H * 0.55);
+    ctx.lineTo(this.W, this.H * 0.62);
+    ctx.lineTo(this.W, this.H);
+    ctx.lineTo(0, this.H);
+    ctx.closePath();
+    ctx.fill();
+
+    // --- CENTRAL VOLCANO ---
+    const vx = this.W / 2, vBase = this.H * 0.78, vTop = this.H * 0.28;
+    ctx.fillStyle = '#1a0300';
+    ctx.beginPath();
+    ctx.moveTo(vx - 220, vBase);
+    ctx.lineTo(vx - 55,  vTop + 10);
+    ctx.lineTo(vx,       vTop);
+    ctx.lineTo(vx + 55,  vTop + 10);
+    ctx.lineTo(vx + 220, vBase);
+    ctx.closePath();
+    ctx.fill();
+
+    // Crater rim glow
+    const craterGrad = ctx.createRadialGradient(vx, vTop, 4, vx, vTop, 55);
+    craterGrad.addColorStop(0,   '#ffd32a');
+    craterGrad.addColorStop(0.4, '#e67e22');
+    craterGrad.addColorStop(1,   'rgba(192,57,43,0)');
+    ctx.fillStyle = craterGrad;
+    ctx.beginPath();
+    ctx.ellipse(vx, vTop + 5, 55, 22, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Animated lava spill down volcano face
+    const spillOffset = (now * 30) % 40;
+    const spillGrad = ctx.createLinearGradient(vx, vTop, vx, vBase);
+    spillGrad.addColorStop(0,   '#ffd32a');
+    spillGrad.addColorStop(0.3, '#e67e22');
+    spillGrad.addColorStop(1,   '#7a1e00');
+    ctx.strokeStyle = spillGrad;
+    ctx.lineWidth = 6;
+    ctx.globalAlpha = 0.75;
+    // Left spill
+    ctx.beginPath();
+    ctx.moveTo(vx - 10, vTop + 12);
+    for (let sy = vTop + 12; sy < vBase; sy += 8) {
+      ctx.lineTo(vx - 10 - (sy - vTop) * 0.22 + Math.sin((sy + spillOffset) * 0.25) * 5, sy);
+    }
+    ctx.stroke();
+    // Right spill
+    ctx.beginPath();
+    ctx.moveTo(vx + 10, vTop + 12);
+    for (let sy = vTop + 12; sy < vBase; sy += 8) {
+      ctx.lineTo(vx + 10 + (sy - vTop) * 0.22 + Math.sin((sy + spillOffset) * 0.22) * 5, sy);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+
+    // Smoke puffs from crater
+    for (let s = 0; s < 5; s++) {
+      const smokeT = ((now * 0.5 + s * 0.2) % 1.0);
+      const smokeX = vx + Math.sin(s * 1.7 + now) * 18;
+      const smokeY = vTop - smokeT * 90;
+      const smokeR = 8 + smokeT * 28;
+      ctx.globalAlpha = (1 - smokeT) * 0.35;
+      ctx.fillStyle = '#3d1a00';
+      ctx.beginPath();
+      ctx.arc(smokeX, smokeY, smokeR, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1.0;
+
+    // --- TARGETS ---
     this.targets.forEach(t => {
       if (t.escaped && !t.dead) return;
       if (t.type === 'acrobat') {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+        // Glowing lava tether instead of white rope
+        const tether = ctx.createLinearGradient(t.x, -200, t.x, t.y);
+        tether.addColorStop(0, 'rgba(255,211,42,0)');
+        tether.addColorStop(1, 'rgba(230,126,34,0.8)');
+        ctx.strokeStyle = tether;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(t.x + (t.vx * 0.3), -200); // Attach way off screen
+        ctx.moveTo(t.x + (t.vx * 0.3), -200);
         ctx.lineTo(t.x, t.y);
         ctx.stroke();
-        
         if (!t.dead) drawGrid(ctx, t.x, t.y, ACROBAT_SWING, PALETTES.acrobat, t.vx > 0, 1.8);
       } else if (t.type === 'drone') {
-        if (!t.dead) drawGrid(ctx, t.x, t.y, DRONE_SPRITE, PALETTES.drone, false, t.scale);
+        // Glow halo around fireball
+        if (!t.dead) {
+          const glow = ctx.createRadialGradient(t.x, t.y, 2, t.x, t.y, 28 * t.scale);
+          glow.addColorStop(0,   'rgba(255,211,42,0.55)');
+          glow.addColorStop(0.5, 'rgba(230,126,34,0.25)');
+          glow.addColorStop(1,   'rgba(192,57,43,0)');
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, 28 * t.scale, 0, Math.PI * 2);
+          ctx.fill();
+          drawGrid(ctx, t.x, t.y, DRONE_SPRITE, PALETTES.drone, false, t.scale);
+        }
       }
     });
 
-    // Particles 
+    // --- EXPLOSION PARTICLES ---
     this.particles.forEach(p => {
       ctx.fillStyle = p.color;
       ctx.globalAlpha = Math.max(0, p.life);
@@ -547,50 +691,78 @@ class GameEngine {
     });
     ctx.globalAlpha = 1.0;
 
-    // Cityscape Foreground
-    ctx.fillStyle = '#0a0614';
-    ctx.fillRect(0, this.H - 80, this.W, 80); 
-    
-    const bldgs = [
-      {x: 30, w: 90, h: 140}, {x: 140, w: 110, h: 200}, {x: 270, w: 100, h: 160},
-      {x: 400, w: 130, h: 220}, {x: 560, w: 90, h: 150}, {x: 680, w: 70, h: 180}
+    // --- MAGMA RIVER (foreground floor) ---
+    const floorY = this.H - 70;
+    // Dark basalt base
+    ctx.fillStyle = '#120200';
+    ctx.fillRect(0, floorY, this.W, 70);
+
+    // Animated flowing magma river
+    const magmaOffset = (now * 50) % this.W;
+    const magmaGrad = ctx.createLinearGradient(0, floorY, 0, this.H);
+    magmaGrad.addColorStop(0,   '#ffd32a');
+    magmaGrad.addColorStop(0.3, '#e67e22');
+    magmaGrad.addColorStop(0.7, '#c0392b');
+    magmaGrad.addColorStop(1,   '#7a1e00');
+    ctx.fillStyle = magmaGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, floorY + 18);
+    for (let mx = 0; mx <= this.W; mx += 20) {
+      const wave = Math.sin((mx + magmaOffset) * 0.05) * 7;
+      ctx.lineTo(mx, floorY + 18 + wave);
+    }
+    ctx.lineTo(this.W, this.H);
+    ctx.lineTo(0, this.H);
+    ctx.closePath();
+    ctx.fill();
+
+    // Dark lava rock outcrops on foreground
+    const rocks = [
+      {x: 20,  w: 80,  h: 55}, {x: 130, w: 100, h: 70},
+      {x: 260, w: 90,  h: 50}, {x: 390, w: 120, h: 65},
+      {x: 540, w: 85,  h: 52}, {x: 665, w: 95,  h: 60}
     ];
-    bldgs.forEach(b => {
-      ctx.fillStyle = '#100a1c'; 
+    rocks.forEach(b => {
+      ctx.fillStyle = '#1a0300';
       ctx.fillRect(b.x, this.H - b.h, b.w, b.h);
-      ctx.fillStyle = '#f1c40f'; 
-      for (let wy = this.H - b.h + 15; wy < this.H - 40; wy += 20) {
-        for (let wx = b.x + 15; wx < b.x + b.w - 15; wx += 20) {
-          if ((wx*wy)%7 > 2) ctx.fillRect(wx, wy, 5, 8);
+      // Glowing lava cracks
+      ctx.fillStyle = '#e67e22';
+      for (let cy = this.H - b.h + 10; cy < this.H - 15; cy += 14) {
+        for (let cx = b.x + 10; cx < b.x + b.w - 10; cx += 16) {
+          if ((cx * cy) % 5 > 2) {
+            ctx.globalAlpha = 0.6 + Math.sin(now * 3 + cx * 0.1) * 0.3;
+            ctx.fillRect(cx, cy, 3, 6);
+          }
         }
       }
+      ctx.globalAlpha = 1.0;
     });
 
-    // Mascot
+    // --- LAVA GOLEM MASCOT ---
     if (this.mascot.active) {
-       const mY = Math.max(this.mascot.y, this.H - 120);
-       drawGrid(ctx, this.W / 2, mY, VIGILANTE_STAND, PALETTES.vigilante, false, 2.5);
-       if (this.mascot.type === 'laugh') {
-         const bob = Math.sin(this.mascot.timer * 20) * 5;
-         drawGrid(ctx, this.W / 2, mY + bob, VIGILANTE_STAND, PALETTES.vigilante, false, 2.5);
-       }
+      const mY = Math.max(this.mascot.y, this.H - 120);
+      drawGrid(ctx, this.W / 2, mY, VIGILANTE_STAND, PALETTES.vigilante, false, 2.5);
+      if (this.mascot.type === 'laugh') {
+        const bob = Math.sin(this.mascot.timer * 20) * 5;
+        drawGrid(ctx, this.W / 2, mY + bob, VIGILANTE_STAND, PALETTES.vigilante, false, 2.5);
+      }
     }
 
-    // Floating Texts (Scores & Taunts)
+    // --- FLOATING TEXTS (Scores & Taunts) ---
     ctx.textAlign = 'center';
     this.floatingTexts.forEach(ft => {
       ctx.font = ft.isTaunt ? 'bold 18px "Press Start 2P", monospace, sans-serif' : '14px "Press Start 2P", monospace, sans-serif';
       ctx.globalAlpha = Math.max(0, Math.min(1, ft.life * 1.5));
-      
+
       const textWidth = ctx.measureText(ft.text).width;
       let drawX = Math.max(textWidth / 2 + 20, Math.min(this.W - textWidth / 2 - 20, ft.x));
 
       if (ft.isTaunt) {
-         ctx.fillStyle = 'rgba(10, 6, 20, 0.9)';
-         ctx.fillRect(drawX - textWidth/2 - 20, ft.y - 24, textWidth + 40, 36);
-         ctx.strokeStyle = '#e23636';
-         ctx.lineWidth = 2;
-         ctx.strokeRect(drawX - textWidth/2 - 20, ft.y - 24, textWidth + 40, 36);
+        ctx.fillStyle = 'rgba(26,3,0,0.92)';
+        ctx.fillRect(drawX - textWidth/2 - 20, ft.y - 24, textWidth + 40, 36);
+        ctx.strokeStyle = '#e67e22';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(drawX - textWidth/2 - 20, ft.y - 24, textWidth + 40, 36);
       }
 
       ctx.fillStyle = ft.color;
@@ -709,12 +881,12 @@ const App = () => {
 
       {gameState.state === 'MENU' && (
         <div className="overlay-screen">
-          <h2 className="title">RETRO WEB HUNTER</h2>
-          <p className="subtitle">Aim with mouse/finger · Click/Space to shoot</p>
+          <h2 className="title">VOLCANO RUNNER</h2>
+          <p className="subtitle">🌋 LAVA INVASION · Aim with mouse/finger · Click/Space to shoot</p>
           <div className="menu-opts">
-            <div className="menu-opt" onClick={() => engineRef.current.startGame(1)}>LEVEL 1: EASY (Press 1)</div>
-            <div className="menu-opt" onClick={() => engineRef.current.startGame(2)}>LEVEL 2: MEDIUM (Press 2)</div>
-            <div className="menu-opt" onClick={() => engineRef.current.startGame(3)}>LEVEL 3: VERY HARD (Press 3)</div>
+            <div className="menu-opt" onClick={() => engineRef.current.startGame(1)}>🔥 LEVEL 1: EASY (Press 1)</div>
+            <div className="menu-opt" onClick={() => engineRef.current.startGame(2)}>🌋 LEVEL 2: MEDIUM (Press 2)</div>
+            <div className="menu-opt" onClick={() => engineRef.current.startGame(3)}>💀 LEVEL 3: VERY HARD (Press 3)</div>
           </div>
         </div>
       )}
