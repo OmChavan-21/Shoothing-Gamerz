@@ -530,215 +530,328 @@ class GameEngine {
 
   draw() {
     const ctx = this.ctx;
-    const now = performance.now() / 1000; // seconds, for animation
+    const now = performance.now() / 1000; // seconds, drives all animations
 
-    // --- SKY: dark crimson/orange smoky gradient ---
+    // ═══════════════════════════════════════════════════════
+    // 1. ATMOSPHERIC SKY — deep crimson to molten orange
+    // ═══════════════════════════════════════════════════════
     const skyGrad = ctx.createLinearGradient(0, 0, 0, this.H);
-    skyGrad.addColorStop(0,   '#1a0000');
-    skyGrad.addColorStop(0.4, '#3d0a00');
-    skyGrad.addColorStop(0.75,'#7a1e00');
-    skyGrad.addColorStop(1,   '#b03000');
+    skyGrad.addColorStop(0,    '#0a0101');
+    skyGrad.addColorStop(0.25, '#2e0804');
+    skyGrad.addColorStop(0.6,  '#6b1807');
+    skyGrad.addColorStop(1,    '#ff4500');
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, this.W, this.H);
 
-    // --- VOLCANIC ASH / EMBER PARTICLES (deterministic flicker) ---
+    // Eruption sun / blood moon — radial heat bloom
+    const sunX = this.W * 0.82, sunY = this.H * 0.18;
+    const sunBloom = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 90);
+    sunBloom.addColorStop(0,    'rgba(255,255,200,0.95)');
+    sunBloom.addColorStop(0.15, 'rgba(255,120,0,0.80)');
+    sunBloom.addColorStop(0.40, 'rgba(200,30,0,0.45)');
+    sunBloom.addColorStop(0.70, 'rgba(100,10,0,0.20)');
+    sunBloom.addColorStop(1,    'rgba(0,0,0,0)');
+    ctx.fillStyle = sunBloom;
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 90, 0, Math.PI * 2);
+    ctx.fill();
+    // Hard disk centre
+    const sunDisk = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 22);
+    sunDisk.addColorStop(0,   '#ffffff');
+    sunDisk.addColorStop(0.5, '#fffa65');
+    sunDisk.addColorStop(1,   '#ff4500');
+    ctx.fillStyle = sunDisk;
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, 22, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ═══════════════════════════════════════════════════════
+    // 2. RISING EMBERS & ASH — 60 upward-drifting sparks
+    // ═══════════════════════════════════════════════════════
     for (let i = 0; i < 60; i++) {
-      const ex = ((Math.sin(i * 491 + now * (0.3 + i * 0.01)) * 0.5 + 0.5)) * this.W;
-      const ey = ((Math.cos(i * 317 + now * (0.2 + i * 0.008)) * 0.5 + 0.5)) * this.H * 0.7;
-      const er = 1 + Math.abs(Math.sin(i * 77 + now * 2)) * 2;
-      const alpha = 0.4 + Math.abs(Math.sin(i * 53 + now * 3)) * 0.6;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = i % 3 === 0 ? '#ffd32a' : i % 3 === 1 ? '#e67e22' : '#ff3838';
+      // Each ember rises at its own speed, drifts sideways on a sine wave
+      const speed   = 0.06 + (i % 7) * 0.018;
+      const drift   = Math.sin(i * 2.39 + now * (0.5 + i * 0.02)) * 22;
+      const baseX   = ((i * 137.5) % this.W); // golden-angle spacing
+      const rawY    = this.H - ((now * speed * this.H + i * (this.H / 60)) % this.H);
+      const ex      = baseX + drift;
+      const ey      = rawY;
+      const er      = 0.8 + (i % 4) * 0.5;
+      const alpha   = 0.3 + 0.7 * ((this.H - ey) / this.H); // brighter near bottom
+      ctx.globalAlpha = Math.min(1, alpha);
+      ctx.fillStyle   = i % 3 === 0 ? '#ffd32a' : i % 3 === 1 ? '#ff6b1a' : '#ff3838';
       ctx.beginPath();
       ctx.arc(ex, ey, er, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1.0;
 
-    // --- DISTANT DARK MOUNTAINS ---
-    ctx.fillStyle = '#1f0500';
-    // Far mountains (lighter silhouette)
+    // ═══════════════════════════════════════════════════════
+    // 3. DISTANT MOUNTAINS — two layers, smooth bezier silhouettes
+    // ═══════════════════════════════════════════════════════
+    // Far layer
+    ctx.fillStyle = '#1f0502';
     ctx.beginPath();
-    ctx.moveTo(0, this.H * 0.72);
-    ctx.lineTo(60,  this.H * 0.45);
-    ctx.lineTo(130, this.H * 0.60);
-    ctx.lineTo(210, this.H * 0.38);
-    ctx.lineTo(310, this.H * 0.55);
-    ctx.lineTo(430, this.H * 0.42);
-    ctx.lineTo(530, this.H * 0.58);
-    ctx.lineTo(640, this.H * 0.40);
-    ctx.lineTo(730, this.H * 0.54);
-    ctx.lineTo(this.W, this.H * 0.46);
+    ctx.moveTo(0, this.H * 0.75);
+    ctx.bezierCurveTo(80,  this.H * 0.38, 140, this.H * 0.55, 200, this.H * 0.42);
+    ctx.bezierCurveTo(260, this.H * 0.30, 310, this.H * 0.52, 380, this.H * 0.40);
+    ctx.bezierCurveTo(450, this.H * 0.28, 500, this.H * 0.50, 570, this.H * 0.38);
+    ctx.bezierCurveTo(630, this.H * 0.27, 700, this.H * 0.48, this.W, this.H * 0.44);
     ctx.lineTo(this.W, this.H);
     ctx.lineTo(0, this.H);
     ctx.closePath();
     ctx.fill();
 
-    // Near mountains (darker)
-    ctx.fillStyle = '#120200';
+    // Near layer
+    ctx.fillStyle = '#130201';
     ctx.beginPath();
-    ctx.moveTo(0, this.H * 0.82);
-    ctx.lineTo(80,  this.H * 0.62);
-    ctx.lineTo(160, this.H * 0.72);
-    ctx.lineTo(260, this.H * 0.52);
-    ctx.lineTo(380, this.H * 0.68);
-    ctx.lineTo(500, this.H * 0.50);
-    ctx.lineTo(600, this.H * 0.65);
-    ctx.lineTo(700, this.H * 0.55);
-    ctx.lineTo(this.W, this.H * 0.62);
+    ctx.moveTo(0, this.H * 0.85);
+    ctx.bezierCurveTo(60,  this.H * 0.60, 120, this.H * 0.75, 190, this.H * 0.58);
+    ctx.bezierCurveTo(260, this.H * 0.45, 330, this.H * 0.68, 400, this.H * 0.55);
+    ctx.bezierCurveTo(480, this.H * 0.42, 540, this.H * 0.62, 610, this.H * 0.52);
+    ctx.bezierCurveTo(680, this.H * 0.44, 740, this.H * 0.60, this.W, this.H * 0.56);
     ctx.lineTo(this.W, this.H);
     ctx.lineTo(0, this.H);
     ctx.closePath();
     ctx.fill();
 
-    // --- CENTRAL VOLCANO ---
-    const vx = this.W / 2, vBase = this.H * 0.78, vTop = this.H * 0.28;
-    ctx.fillStyle = '#1a0300';
+    // ═══════════════════════════════════════════════════════
+    // 4. CENTRAL VOLCANO — smooth bezier silhouette
+    // ═══════════════════════════════════════════════════════
+    const vx   = this.W / 2;
+    const vTop = this.H * 0.27;
+    const vBase= this.H * 0.80;
+
+    // Volcano body fill
+    const volcGrad = ctx.createLinearGradient(vx - 220, 0, vx + 220, 0);
+    volcGrad.addColorStop(0,   '#0e0100');
+    volcGrad.addColorStop(0.5, '#2a0500');
+    volcGrad.addColorStop(1,   '#0e0100');
+    ctx.fillStyle = volcGrad;
     ctx.beginPath();
-    ctx.moveTo(vx - 220, vBase);
-    ctx.lineTo(vx - 55,  vTop + 10);
-    ctx.lineTo(vx,       vTop);
-    ctx.lineTo(vx + 55,  vTop + 10);
-    ctx.lineTo(vx + 220, vBase);
+    ctx.moveTo(vx - 240, vBase);
+    ctx.bezierCurveTo(vx - 200, vBase - 20, vx - 130, vTop + 80, vx - 60, vTop + 15);
+    ctx.bezierCurveTo(vx - 35,  vTop + 4,   vx - 18,  vTop,      vx,      vTop);
+    ctx.bezierCurveTo(vx + 18,  vTop,       vx + 35,  vTop + 4,  vx + 60, vTop + 15);
+    ctx.bezierCurveTo(vx + 130, vTop + 80,  vx + 200, vBase - 20, vx + 240, vBase);
     ctx.closePath();
     ctx.fill();
 
-    // Crater rim glow
-    const craterGrad = ctx.createRadialGradient(vx, vTop, 4, vx, vTop, 55);
-    craterGrad.addColorStop(0,   '#ffd32a');
-    craterGrad.addColorStop(0.4, '#e67e22');
-    craterGrad.addColorStop(1,   'rgba(192,57,43,0)');
-    ctx.fillStyle = craterGrad;
+    // Glowing caldera / crater — radial gradient (#fff → #fffa65 → #ff3838)
+    const craterX = vx, craterY = vTop + 2;
+    const calderaGlow = ctx.createRadialGradient(craterX, craterY, 0, craterX, craterY, 62);
+    calderaGlow.addColorStop(0,    '#ffffff');
+    calderaGlow.addColorStop(0.18, '#fffa65');
+    calderaGlow.addColorStop(0.50, '#ff3838');
+    calderaGlow.addColorStop(0.80, 'rgba(192,57,43,0.4)');
+    calderaGlow.addColorStop(1,    'rgba(100,10,0,0)');
+    ctx.fillStyle = calderaGlow;
     ctx.beginPath();
-    ctx.ellipse(vx, vTop + 5, 55, 22, 0, 0, Math.PI * 2);
+    ctx.ellipse(craterX, craterY + 6, 62, 24, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Animated lava spill down volcano face
-    const spillOffset = (now * 30) % 40;
-    const spillGrad = ctx.createLinearGradient(vx, vTop, vx, vBase);
-    spillGrad.addColorStop(0,   '#ffd32a');
-    spillGrad.addColorStop(0.3, '#e67e22');
-    spillGrad.addColorStop(1,   '#7a1e00');
-    ctx.strokeStyle = spillGrad;
-    ctx.lineWidth = 6;
-    ctx.globalAlpha = 0.75;
-    // Left spill
-    ctx.beginPath();
-    ctx.moveTo(vx - 10, vTop + 12);
-    for (let sy = vTop + 12; sy < vBase; sy += 8) {
-      ctx.lineTo(vx - 10 - (sy - vTop) * 0.22 + Math.sin((sy + spillOffset) * 0.25) * 5, sy);
-    }
-    ctx.stroke();
-    // Right spill
-    ctx.beginPath();
-    ctx.moveTo(vx + 10, vTop + 12);
-    for (let sy = vTop + 12; sy < vBase; sy += 8) {
-      ctx.lineTo(vx + 10 + (sy - vTop) * 0.22 + Math.sin((sy + spillOffset) * 0.22) * 5, sy);
-    }
-    ctx.stroke();
+    // ═══════════════════════════════════════════════════════
+    // 5. FLOWING MAGMA STREAMS — quadratic curves with glowing vein
+    // ═══════════════════════════════════════════════════════
+    const streamOffset = (now * 28) % 50;
+
+    const drawStream = (startX, ctrlXMult, widthOuter, widthVein, alpha) => {
+      const steps = 18;
+      const stepH = (vBase - vTop) / steps;
+
+      // Outer stream (dark orange)
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = '#c0392b';
+      ctx.lineWidth = widthOuter;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(startX, vTop + 14);
+      for (let s = 1; s <= steps; s++) {
+        const sy  = vTop + 14 + s * stepH;
+        const sx  = startX + ctrlXMult * s * stepH * 0.22
+                    + Math.sin((sy + streamOffset) * 0.18) * 6;
+        const cpx = startX + ctrlXMult * (s - 0.5) * stepH * 0.22;
+        const cpy = sy - stepH * 0.5;
+        ctx.quadraticCurveTo(cpx, cpy, sx, sy);
+      }
+      ctx.stroke();
+
+      // Inner glowing yellow vein
+      ctx.strokeStyle = '#fffa65';
+      ctx.lineWidth = widthVein;
+      ctx.globalAlpha = alpha * 0.85;
+      ctx.beginPath();
+      ctx.moveTo(startX, vTop + 14);
+      for (let s = 1; s <= steps; s++) {
+        const sy  = vTop + 14 + s * stepH;
+        const sx  = startX + ctrlXMult * s * stepH * 0.22
+                    + Math.sin((sy + streamOffset) * 0.18) * 6;
+        const cpx = startX + ctrlXMult * (s - 0.5) * stepH * 0.22;
+        const cpy = sy - stepH * 0.5;
+        ctx.quadraticCurveTo(cpx, cpy, sx, sy);
+      }
+      ctx.stroke();
+    };
+
+    // Main left + right streams, plus two thinner branches
+    drawStream(vx - 8,   -1,   9, 2.5, 0.80);
+    drawStream(vx + 8,    1,   9, 2.5, 0.80);
+    drawStream(vx - 22,  -1.4, 5, 1.5, 0.55);
+    drawStream(vx + 22,   1.4, 5, 1.5, 0.55);
     ctx.globalAlpha = 1.0;
 
-    // Smoke puffs from crater
-    for (let s = 0; s < 5; s++) {
-      const smokeT = ((now * 0.5 + s * 0.2) % 1.0);
-      const smokeX = vx + Math.sin(s * 1.7 + now) * 18;
-      const smokeY = vTop - smokeT * 90;
-      const smokeR = 8 + smokeT * 28;
-      ctx.globalAlpha = (1 - smokeT) * 0.35;
-      ctx.fillStyle = '#3d1a00';
+    // Animated smoke puffs rising from caldera
+    for (let s = 0; s < 6; s++) {
+      const smokeT = ((now * 0.45 + s * 0.17) % 1.0);
+      const smokeX = vx + Math.sin(s * 1.9 + now * 0.7) * 20;
+      const smokeY = vTop - 10 - smokeT * 100;
+      const smokeR = 6 + smokeT * 32;
+      ctx.globalAlpha = (1 - smokeT) * 0.30;
+      ctx.fillStyle = '#2a0800';
       ctx.beginPath();
       ctx.arc(smokeX, smokeY, smokeR, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1.0;
 
-    // --- TARGETS ---
+    // ═══════════════════════════════════════════════════════
+    // 6. TARGETS (sprites + glow effects — hitboxes unchanged)
+    // ═══════════════════════════════════════════════════════
     this.targets.forEach(t => {
       if (t.escaped && !t.dead) return;
+
       if (t.type === 'acrobat') {
-        // Glowing lava tether instead of white rope
+        // Molten tether cord
         const tether = ctx.createLinearGradient(t.x, -200, t.x, t.y);
         tether.addColorStop(0, 'rgba(255,211,42,0)');
-        tether.addColorStop(1, 'rgba(230,126,34,0.8)');
+        tether.addColorStop(1, 'rgba(255,100,20,0.85)');
         ctx.strokeStyle = tether;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(t.x + (t.vx * 0.3), -200);
+        ctx.moveTo(t.x + t.vx * 0.3, -200);
         ctx.lineTo(t.x, t.y);
         ctx.stroke();
         if (!t.dead) drawGrid(ctx, t.x, t.y, ACROBAT_SWING, PALETTES.acrobat, t.vx > 0, 1.8);
+
       } else if (t.type === 'drone') {
-        // Glow halo around fireball
         if (!t.dead) {
-          const glow = ctx.createRadialGradient(t.x, t.y, 2, t.x, t.y, 28 * t.scale);
-          glow.addColorStop(0,   'rgba(255,211,42,0.55)');
-          glow.addColorStop(0.5, 'rgba(230,126,34,0.25)');
-          glow.addColorStop(1,   'rgba(192,57,43,0)');
-          ctx.fillStyle = glow;
+          // Layered fireball glow: tight white-hot core + wide orange halo
+          const innerGlow = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, 14 * t.scale);
+          innerGlow.addColorStop(0,   'rgba(255,255,180,0.70)');
+          innerGlow.addColorStop(0.5, 'rgba(255,140,0,0.35)');
+          innerGlow.addColorStop(1,   'rgba(200,50,0,0)');
+          ctx.fillStyle = innerGlow;
           ctx.beginPath();
-          ctx.arc(t.x, t.y, 28 * t.scale, 0, Math.PI * 2);
+          ctx.arc(t.x, t.y, 14 * t.scale, 0, Math.PI * 2);
           ctx.fill();
+
+          const outerGlow = ctx.createRadialGradient(t.x, t.y, 2, t.x, t.y, 36 * t.scale);
+          outerGlow.addColorStop(0,   'rgba(255,211,42,0.35)');
+          outerGlow.addColorStop(0.6, 'rgba(230,100,10,0.18)');
+          outerGlow.addColorStop(1,   'rgba(192,57,43,0)');
+          ctx.fillStyle = outerGlow;
+          ctx.beginPath();
+          ctx.arc(t.x, t.y, 36 * t.scale, 0, Math.PI * 2);
+          ctx.fill();
+
           drawGrid(ctx, t.x, t.y, DRONE_SPRITE, PALETTES.drone, false, t.scale);
         }
       }
     });
 
-    // --- EXPLOSION PARTICLES ---
+    // ═══════════════════════════════════════════════════════
+    // 7. EXPLOSION PARTICLES
+    // ═══════════════════════════════════════════════════════
     this.particles.forEach(p => {
-      ctx.fillStyle = p.color;
+      ctx.fillStyle   = p.color;
       ctx.globalAlpha = Math.max(0, p.life);
       ctx.fillRect(p.x, p.y, 5, 5);
     });
     ctx.globalAlpha = 1.0;
 
-    // --- MAGMA RIVER (foreground floor) ---
-    const floorY = this.H - 70;
-    // Dark basalt base
-    ctx.fillStyle = '#120200';
-    ctx.fillRect(0, floorY, this.W, 70);
+    // ═══════════════════════════════════════════════════════
+    // 8. MOLTEN LAVA FLOOR — basalt shelf + animated surge
+    // ═══════════════════════════════════════════════════════
+    const floorY      = this.H - 68;
+    const surgeOffset = now * 55;
+    const surge2      = now * 38;
 
-    // Animated flowing magma river
-    const magmaOffset = (now * 50) % this.W;
-    const magmaGrad = ctx.createLinearGradient(0, floorY, 0, this.H);
-    magmaGrad.addColorStop(0,   '#ffd32a');
-    magmaGrad.addColorStop(0.3, '#e67e22');
-    magmaGrad.addColorStop(0.7, '#c0392b');
-    magmaGrad.addColorStop(1,   '#7a1e00');
-    ctx.fillStyle = magmaGrad;
+    // Solid dark basalt shelf behind lava
+    ctx.fillStyle = '#0e0100';
+    ctx.fillRect(0, floorY, this.W, this.H - floorY);
+
+    // Primary lava surge — deep molten layer
+    const lavaGrad = ctx.createLinearGradient(0, floorY, 0, this.H);
+    lavaGrad.addColorStop(0,    '#fffa65');
+    lavaGrad.addColorStop(0.12, '#ff8c00');
+    lavaGrad.addColorStop(0.40, '#c0392b');
+    lavaGrad.addColorStop(0.75, '#6b0e00');
+    lavaGrad.addColorStop(1,    '#2a0200');
+    ctx.fillStyle = lavaGrad;
     ctx.beginPath();
-    ctx.moveTo(0, floorY + 18);
-    for (let mx = 0; mx <= this.W; mx += 20) {
-      const wave = Math.sin((mx + magmaOffset) * 0.05) * 7;
-      ctx.lineTo(mx, floorY + 18 + wave);
+    ctx.moveTo(0, floorY);
+    for (let mx = 0; mx <= this.W; mx += 6) {
+      const wave = Math.sin((mx + surgeOffset) * 0.055) * 8
+                 + Math.sin((mx + surge2)       * 0.028) * 4;
+      ctx.lineTo(mx, floorY + wave);
     }
     ctx.lineTo(this.W, this.H);
     ctx.lineTo(0, this.H);
     ctx.closePath();
     ctx.fill();
 
-    // Dark lava rock outcrops on foreground
+    // Bright surface highlight vein — flowing yellow core on lava surface
+    ctx.strokeStyle = '#fffa65';
+    ctx.lineWidth   = 2;
+    ctx.globalAlpha = 0.55;
+    ctx.beginPath();
+    for (let mx = 0; mx <= this.W; mx += 6) {
+      const wave = Math.sin((mx + surgeOffset) * 0.055) * 8
+                 + Math.sin((mx + surge2)       * 0.028) * 4;
+      const y = floorY + wave + 3;
+      mx === 0 ? ctx.moveTo(mx, y) : ctx.lineTo(mx, y);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1.0;
+
+    // Dark basalt rock outcrops rising from the lava shelf
     const rocks = [
-      {x: 20,  w: 80,  h: 55}, {x: 130, w: 100, h: 70},
-      {x: 260, w: 90,  h: 50}, {x: 390, w: 120, h: 65},
-      {x: 540, w: 85,  h: 52}, {x: 665, w: 95,  h: 60}
+      {x: 15,  w: 75,  h: 52}, {x: 120, w: 95,  h: 66},
+      {x: 248, w: 85,  h: 48}, {x: 378, w: 115, h: 62},
+      {x: 528, w: 80,  h: 50}, {x: 652, w: 90,  h: 58}
     ];
     rocks.forEach(b => {
-      ctx.fillStyle = '#1a0300';
-      ctx.fillRect(b.x, this.H - b.h, b.w, b.h);
-      // Glowing lava cracks
-      ctx.fillStyle = '#e67e22';
-      for (let cy = this.H - b.h + 10; cy < this.H - 15; cy += 14) {
-        for (let cx = b.x + 10; cx < b.x + b.w - 10; cx += 16) {
+      // Rock body
+      const rockGrad = ctx.createLinearGradient(b.x, this.H - b.h, b.x + b.w, this.H);
+      rockGrad.addColorStop(0, '#1f0200');
+      rockGrad.addColorStop(1, '#0e0100');
+      ctx.fillStyle = rockGrad;
+      ctx.beginPath();
+      ctx.moveTo(b.x, this.H);
+      ctx.lineTo(b.x, this.H - b.h + 12);
+      ctx.quadraticCurveTo(b.x + b.w * 0.15, this.H - b.h, b.x + b.w * 0.5, this.H - b.h);
+      ctx.quadraticCurveTo(b.x + b.w * 0.85, this.H - b.h, b.x + b.w, this.H - b.h + 12);
+      ctx.lineTo(b.x + b.w, this.H);
+      ctx.closePath();
+      ctx.fill();
+
+      // Glowing lava cracks between rock segments
+      for (let cy = this.H - b.h + 8; cy < this.H - 12; cy += 12) {
+        for (let cx = b.x + 8; cx < b.x + b.w - 8; cx += 14) {
           if ((cx * cy) % 5 > 2) {
-            ctx.globalAlpha = 0.6 + Math.sin(now * 3 + cx * 0.1) * 0.3;
-            ctx.fillRect(cx, cy, 3, 6);
+            const crackBright = 0.5 + Math.sin(now * 4 + cx * 0.15) * 0.4;
+            ctx.globalAlpha = crackBright;
+            ctx.fillStyle   = '#ff8c00';
+            ctx.fillRect(cx, cy, 2, 5);
           }
         }
       }
       ctx.globalAlpha = 1.0;
     });
 
-    // --- LAVA GOLEM MASCOT ---
+    // ═══════════════════════════════════════════════════════
+    // 9. LAVA GOLEM MASCOT
+    // ═══════════════════════════════════════════════════════
     if (this.mascot.active) {
       const mY = Math.max(this.mascot.y, this.H - 120);
       drawGrid(ctx, this.W / 2, mY, VIGILANTE_STAND, PALETTES.vigilante, false, 2.5);
@@ -748,26 +861,30 @@ class GameEngine {
       }
     }
 
-    // --- FLOATING TEXTS (Scores & Taunts) ---
+    // ═══════════════════════════════════════════════════════
+    // 10. FLOATING TEXTS (scores, combo, taunts)
+    // ═══════════════════════════════════════════════════════
     ctx.textAlign = 'center';
     this.floatingTexts.forEach(ft => {
-      ctx.font = ft.isTaunt ? 'bold 18px "Press Start 2P", monospace, sans-serif' : '14px "Press Start 2P", monospace, sans-serif';
+      ctx.font      = ft.isTaunt
+        ? 'bold 18px "Press Start 2P", monospace, sans-serif'
+        : '14px "Press Start 2P", monospace, sans-serif';
       ctx.globalAlpha = Math.max(0, Math.min(1, ft.life * 1.5));
 
       const textWidth = ctx.measureText(ft.text).width;
-      let drawX = Math.max(textWidth / 2 + 20, Math.min(this.W - textWidth / 2 - 20, ft.x));
+      const drawX = Math.max(textWidth / 2 + 20, Math.min(this.W - textWidth / 2 - 20, ft.x));
 
       if (ft.isTaunt) {
-        ctx.fillStyle = 'rgba(26,3,0,0.92)';
-        ctx.fillRect(drawX - textWidth/2 - 20, ft.y - 24, textWidth + 40, 36);
-        ctx.strokeStyle = '#e67e22';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(drawX - textWidth/2 - 20, ft.y - 24, textWidth + 40, 36);
+        ctx.fillStyle   = 'rgba(20,2,0,0.93)';
+        ctx.fillRect(drawX - textWidth / 2 - 20, ft.y - 24, textWidth + 40, 36);
+        ctx.strokeStyle = '#ff6b1a';
+        ctx.lineWidth   = 2;
+        ctx.strokeRect(drawX - textWidth / 2 - 20, ft.y - 24, textWidth + 40, 36);
       }
 
-      ctx.fillStyle = ft.color;
+      ctx.fillStyle   = ft.color;
       ctx.strokeStyle = '#000';
-      ctx.lineWidth = 4;
+      ctx.lineWidth   = 4;
       ctx.strokeText(ft.text, drawX, ft.y);
       ctx.fillText(ft.text, drawX, ft.y);
     });
